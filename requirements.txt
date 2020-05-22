@@ -1,0 +1,5 @@
+pandas==1.0.3
+streamlit==0.58.0
+numpy==1.18.4
+joblib==0.14.1
+nltk==3.5
