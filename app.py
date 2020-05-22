@@ -7,6 +7,8 @@ import string
 import pickle
 import joblib
 
+nltk.download('stopwords')
+
 stopwords = nltk.corpus.stopwords.words('english')
 ps = nltk.PorterStemmer()
 wn = nltk.WordNetLemmatizer()
