@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
+
 import nltk
 import re
 import string
@@ -15,14 +15,6 @@ stopwords = nltk.corpus.stopwords.words('english')
 ps = nltk.PorterStemmer()
 wn = nltk.WordNetLemmatizer()
 
-option = st.sidebar.selectbox('Which ML model would you like to use?',('Logistic Regression', 'Linear SVC', 'Naive Bayes'))
-st.sidebar.write('You selected:', option)
-st.title('Toxic Comment Analysis.')
-st.markdown('''
-	Used Natural language Processing to clean and vectorize input data and
-	 Machine learning algorithmto predict if a comment is toxic or not. 
-	 The implemented models named on the sidebar had a F1 accuracy of 72.1%, 72.3% and 65.1% respectively. ''')
-# function to remove punctuation, tokenize, remove stopwords and stem
 
 # Security
 #passlib,hashlib,bcrypt,scrypt
@@ -57,6 +49,7 @@ def view_all_users():
 	c.execute('SELECT * FROM userstable')
 	data = c.fetchall()
 	return data
+
 
 @st.cache
 def clean_text(text):
@@ -123,8 +116,7 @@ def predict(features, model = 'Linear SVC'):
   elapsed = timeit.default_timer() - start_time
   
   return y,elapsed
-
-def main():
+def show_results(option):
     
 	message = st.text_area('write a comment here:')
 	if st.button('Predict'):
@@ -147,9 +139,54 @@ def main():
 			"contains_identity_hate": prediction[:, 5]
 			}, index=['Comment'])
 		st.write(df.T)
-		
-		#st.write(i)
+def success(username):
+    return st.success("Logged In as {}".format(username))
+
+def main():
+	"""Simple Login App"""
+
+	st.title("Toxic Comment Analysis.")
+
+	menu = ["Home","Login","SignUp"]
+	choice = st.sidebar.selectbox("Menu",menu)
+
+	if choice == "Home":
+		st.subheader("Wecome to our ML and NLP powered project. Sign Up or Log in to continue")
+
+	elif choice == "Login":
+		st.subheader("Login Section")
+
+		username = st.sidebar.text_input("User Name")
+		password = st.sidebar.text_input("Password",type='password')
+		if st.sidebar.checkbox("Login"):
+			# if password == '12345':
+			create_usertable()
+			hashed_pswd = make_hashes(password)
+
+			result = login_user(username,check_hashes(password,hashed_pswd))
+			if result:
+       			#st.success("Logged In as {}".format(username))
+				success(username)
+				option = st.selectbox('Which ML model would you like to use?',('Logistic Regression', 'Linear SVC', 'Naive Bayes'))
+				st.write('You selected:', option)
+				show_results(option)
+       
+			else:
+				st.warning("Incorrect Username/Password")
+
+
+	elif choice == "SignUp":
+		st.subheader("Create New Account")
+		new_user = st.text_input("Username")
+		new_password = st.text_input("Password",type='password')
+
+		if st.button("Signup"):
+			create_usertable()
+			add_userdata(new_user,make_hashes(new_password))
+			st.success("You have successfully created a valid Account")
+			st.info("Go to Login Menu to login")
+
 
 
 if __name__ == '__main__':
-    main()
+	main()
